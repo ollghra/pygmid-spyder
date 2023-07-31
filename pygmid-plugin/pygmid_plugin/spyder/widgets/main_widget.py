@@ -11,7 +11,7 @@ PyGMID Plugin Main Widget.
 
 # Third party imports
 from qtpy.QtWidgets import QHBoxLayout, QLabel
-
+import qtawesome
 
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
@@ -20,22 +20,20 @@ from spyder.api.translations import get_translation
 
 from spyder.api.widgets.main_widget import PluginMainWidget
 
-from .controller import ControllerTabs
+from .controller import ControllerTabs, run_sweep
 
 # Localization
 _ = get_translation("pygmid_plugin.spyder")
 
 
 class PyGMIDPluginActions:
-    ExampleAction = "example_action"
+    RunSweep = "run_sweep"
 
 
-class PyGMIDPluginToolBarSections:
-    ExampleSection = "example_section"
 
 
 class PyGMIDPluginOptionsMenuSections:
-    ExampleSection = "example_section"
+    SweepSection = "sweep_section"
 
 class PyGMIDPluginWidget(ShellConnectMainWidget):
 
@@ -57,28 +55,28 @@ class PyGMIDPluginWidget(ShellConnectMainWidget):
 
     def setup(self):
         # Create an example action
-        example_action = self.create_action(
-            name=PyGMIDPluginActions.ExampleAction,
-            text="Example action",
-            tip="Example hover hint",
-            icon=self.create_icon("spyder"),
-            triggered=lambda: print("Example action triggered!"),
+        run_sweep_action = self.create_action(
+            name=PyGMIDPluginActions.RunSweep,
+            text="Run Sweep",
+            tip="Run the sweep process",
+            icon=qtawesome.icon('fa.play'),
+            triggered=run_sweep,
         )
 
         # Add an example action to the plugin options menu
-        menu = self.get_options_menu()
-        self.add_item_to_menu(
-            example_action,
-            menu,
-            PyGMIDPluginOptionsMenuSections.ExampleSection,
-        )
+        #menu = self.get_options_menu()
+        #self.add_item_to_menu(
+        #    run_sweep_action,
+        #    menu,
+        #    PyGMIDPluginOptionsMenuSections.ExampleSection,
+        #)
 
         # Add an example action to the plugin toolbar
         toolbar = self.get_main_toolbar()
         self.add_item_to_toolbar(
-            example_action,
+            run_sweep_action,
             toolbar,
-            PyGMIDPluginOptionsMenuSections.ExampleSection,
+            PyGMIDPluginOptionsMenuSections.SweepSection,
         )
 
     def update_actions(self):

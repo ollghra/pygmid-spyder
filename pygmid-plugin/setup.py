@@ -24,6 +24,7 @@ setup(
     url="https://github.com/ollghra/pygmid-plugin",
     python_requires='>= 3.7',
     install_requires=[
+        "pygmid",
         "qtpy",
         "qtawesome",
         "spyder>=5.0.1",
