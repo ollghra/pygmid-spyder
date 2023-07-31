@@ -15,10 +15,12 @@ from qtpy.QtWidgets import QHBoxLayout, QLabel
 
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
+from spyder.api.shellconnect.main_widget import ShellConnectMainWidget
 from spyder.api.translations import get_translation
 
 from spyder.api.widgets.main_widget import PluginMainWidget
 
+from .controller import ControllerTabs
 
 # Localization
 _ = get_translation("pygmid_plugin.spyder")
@@ -35,8 +37,7 @@ class PyGMIDPluginToolBarSections:
 class PyGMIDPluginOptionsMenuSections:
     ExampleSection = "example_section"
 
-
-class PyGMIDPluginWidget(PluginMainWidget):
+class PyGMIDPluginWidget(ShellConnectMainWidget):
 
     # PluginMainWidget class constants
 
@@ -45,13 +46,6 @@ class PyGMIDPluginWidget(PluginMainWidget):
     def __init__(self, name=None, plugin=None, parent=None):
         super().__init__(name, plugin, parent)
 
-        # Create an example label
-        self._example_label = QLabel("Example Label")
-
-        # Add example label to layout
-        layout = QHBoxLayout()
-        layout.addWidget(self._example_label)
-        self.setLayout(layout)
 
     # --- PluginMainWidget API
     # ------------------------------------------------------------------------
@@ -92,6 +86,19 @@ class PyGMIDPluginWidget(PluginMainWidget):
 
     @on_conf_change
     def on_section_conf_change(self, section):
+        pass
+
+    # ShellConnectMainWidget API
+    def create_new_widget(self, shellwidget):
+        #shellwidget.execute("name = 9; print(9)")
+        controller = ControllerTabs(parent=self, shellwidget=shellwidget)
+        controller.set_shellwidget(shellwidget)
+        return controller
+
+    def close_widget(self, widget):
+        widget.close()
+
+    def switch_widget(self, widget, old_widget):
         pass
 
     # --- Public API
