@@ -1,0 +1,15 @@
+# ----------------------------------------------------------------------------
+# Copyright © 2023, Tiarnach Ó Riada
+#
+# Licensed under the terms of the Apache Software License 2.0
+# ----------------------------------------------------------------------------
+
+commit_message: '[ci skip] New %language% translation from Crowdin'
+append_commit_message: false
+files:
+  - source: /pygmid_plugin/spyder/locale/pygmid_plugin.pot
+    translation: /pygmid_plugin/pygmid_plugin/locale/%two_letters_code%/LC_MESSAGES/%file_name%.po
+    languages_mapping:
+      two_letters_code:
+        pt-BR: pt_BR
+        zh-CN: zh_CN
