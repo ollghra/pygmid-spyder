@@ -60,7 +60,7 @@ class PyGMIDPluginWidget(ShellConnectMainWidget):
             text="Run Sweep",
             tip="Run the sweep process",
             icon=qtawesome.icon('fa.play'),
-            triggered=run_sweep,
+            triggered=lambda : run_sweep(),
         )
 
         # Add an example action to the plugin options menu

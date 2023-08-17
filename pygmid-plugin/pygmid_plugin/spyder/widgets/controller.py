@@ -2,6 +2,8 @@ from pygmid import sweep
 
 from qtpy import PYQT5
 from qtpy.QtWidgets import *
+from pathlib import Path
+import os
 
 from spyder.api.translations import get_translation
 from spyder.api.widgets.mixins import SpyderWidgetMixin
@@ -16,7 +18,7 @@ class ControllerTabs(QWidget, SpyderWidgetMixin):
             SpyderWidgetMixin.__init__(self, class_parent=parent)
 
         self.shellwidget = shellwidget
-        self.config_file_path = "sweep.cfg"
+        self.config_file_path = str(Path(os.getcwd()) / "sweep.cfg")
 
         self._tabWidget = QTabWidget(parent=self)
         self._tabWidget.addTab(SweepTab(parent=self), _("Sweep"))
@@ -127,33 +129,34 @@ class SweepTab(QWidget):
     def _on_save_config(self):
         with open(self.config_file_path, "w+") as f:
             print(f"WRITE CONFIG to {self.config_file_path}: {self._to_config()}")
-            f.write(self._config.text())
+            f.write(self._config.toPlainText())
 
 
 
     def _to_config(self) -> str:
         return "\n".join([
             "[MODEL]",
-            "file = " + self._model_file.text(),
-            "info = " + self._model_info.text(),
-            "corner = " + self._corner.text(),
-            "temp = " + self._temperature.text(),
-            "modeln = " + self._model_n.text(),
-            "modelp = " + self._model_p.text(),
-            "savefilen = " +self._save_file_n.text(),
-            "savefilep = " + self._save_file_p.text(),
-            "paramfile = params.scs",
+            "FILE = " + self._model_file.text(),
+            "INFO = " + self._model_info.text(),
+            "CORNER = " + self._corner.text(),
+            "TEMP = " + self._temperature.text(),
+            "MODELN = " + self._model_n.text(),
+            "MODELP = " + self._model_p.text(),
+            "SAVEFILEN = " +self._save_file_n.text(),
+            "SACEFILEP = " + self._save_file_p.text(),
+            "PARAMFILE = params.scs",
             "[SWEEP]",
             "VGS = " + self._vgs.text(),
-            "VGS = " + self._vds.text(),
-            "VGS = " + self._vsb.text(),
-            "VGS = " + self._length.text(),
-            "VGS = " + self._width.text(),
-            "VGS = " + self._nfing.text(),
+            "VDS = " + self._vds.text(),
+            "VSB = " + self._vsb.text(),
+            "L = " + self._length.text(),
+            "W = " + self._width.text(),
+            "NFING = " + self._nfing.text(),
             ])
 
 def run_sweep(config_file="sweep.cfg"):
-    mfn, mfp = sweep.run(config_file, skip_sweep=False)
+    if Path(config_file).exists():
+        mfn, mfp = sweep.run(config_file, skip_sweep=False)
 
 class LookupTab(QWidget):
     def __init__(self, parent=None):
