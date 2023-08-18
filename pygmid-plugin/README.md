@@ -16,6 +16,12 @@ https://github.com/spyder-ide/spyder-boilerplate/actions?query=workflow%3A%22Win
 ## Features
 
 * TODO
+[ ] get on pypi
+[ ] multiple tabs
+[ ] use cases
+[ ] auto-label axes where ratios specified
+[ ] issues -> FAQs or bugfix
+
 
 ## Credits
 

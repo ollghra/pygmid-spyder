@@ -1,7 +1,12 @@
 from pygmid import sweep
+import pygmid
+import numpy as np
+from typing import Callable
+from pathlib import Path
 
 from qtpy import PYQT5
 from qtpy.QtWidgets import *
+from qtpy.QtCore import Qt
 from pathlib import Path
 import os
 
@@ -22,7 +27,7 @@ class ControllerTabs(QWidget, SpyderWidgetMixin):
 
         self._tabWidget = QTabWidget(parent=self)
         self._tabWidget.addTab(SweepTab(parent=self), _("Sweep"))
-        self._tabWidget.addTab(LookupTab(parent=self), _("Lookup"))
+        self._tabWidget.addTab(LookupTab(parent=self, execute=self.shellwidget.execute, set_value=self.shellwidget.set_value), _("Lookup"))
         layout = QVBoxLayout()
         layout.addWidget(self._tabWidget)
         self.setLayout(layout)
@@ -131,8 +136,6 @@ class SweepTab(QWidget):
             print(f"WRITE CONFIG to {self.config_file_path}: {self._to_config()}")
             f.write(self._config.toPlainText())
 
-
-
     def _to_config(self) -> str:
         return "\n".join([
             "[MODEL]",
@@ -159,10 +162,219 @@ def run_sweep(config_file="sweep.cfg"):
         mfn, mfp = sweep.run(config_file, skip_sweep=False)
 
 class LookupTab(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self._label = QLabel("Lookup")
+    valid_first_vars = ['GM','L','W','VGS','VDS','VSB','ID','VT','IGD','IGS','GMB','GDS','CGG','CGS','CSG','CGD','CDG','CGB','CDD','CSS','STH','SFL']
+    valid_second_vars = [None,'ID','L','W','VGS','VDS','VSB','VT','IGD','IGS','GM','GMB','GDS','CGG','CGS','CSG','CGD','CDG','CGB','CDD','CSS','STH','SFL']
 
+
+    def __init__(self, execute:Callable[[str], None], set_value: Callable[[str, str], None], parent=None):
+        super().__init__(parent=parent)
+        self.execute = execute
+        self.set_value = set_value
+
+        self.lookup:pygmid.Lookup.Lookup = None
+
+        self.setMaximumWidth(720)
         layout = QVBoxLayout()
-        layout.addWidget(self._label)
+
+        headingFont = self.font()
+        headingFont.setBold(True)
+        headingFont.setPointSize(16)
+
+        formLayout = QFormLayout()
+
+        self._title = QLabel('New Lookup', parent=self)
+        self._title.setFont(headingFont)
+        formLayout.addRow(self._title)
+        
+        hlayout = QHBoxLayout()
+        
+        self._lookup_file = QLineEdit(self)
+        self._lookup_file.setReadOnly(True)
+        hlayout.addWidget(self._lookup_file)
+
+        self._select_lookup_file = QPushButton(_("Select"), self)
+        self._select_lookup_file.clicked.connect(self._on_select_lookup_file)
+        hlayout.addWidget(self._select_lookup_file)
+ 
+        formLayout.addRow(_("Lookup file"), hlayout)
+
+
+        hlayout = QHBoxLayout()
+
+        self._lookup_ratio_11 = QComboBox(self)
+        self._lookup_ratio_11.addItems(LookupTab.valid_first_vars)
+        self._lookup_ratio_11.currentIndexChanged.connect(self._update_lookup_ratio_1)
+        hlayout.addWidget(self._lookup_ratio_11)
+
+        spacer = QLabel("_")
+        hlayout.addWidget(spacer)
+
+        self._lookup_ratio_12 = QComboBox(self)
+        self._lookup_ratio_12.addItems(LookupTab.valid_second_vars)
+        self._lookup_ratio_12.currentIndexChanged.connect(self._update_lookup_ratio_1)
+        hlayout.addWidget(self._lookup_ratio_12)
+
+        self._lookup_ratio_1 = QLabel("", self)
+        self._update_lookup_ratio_1()
+        hlayout.addWidget(self._lookup_ratio_1)
+
+        formLayout.addRow(_("Ratio 1"), hlayout)
+
+        formLayout.addRow(QLabel("vs"))
+
+        hlayout = QHBoxLayout()
+
+        self._lookup_ratio_21 = QComboBox(self)
+        self._lookup_ratio_21.addItem('')
+        self._lookup_ratio_21.addItems(LookupTab.valid_first_vars)
+        self._lookup_ratio_21.currentIndexChanged.connect(self._update_lookup_ratio_2)
+        hlayout.addWidget(self._lookup_ratio_21)
+
+        spacer = QLabel("_")
+        hlayout.addWidget(spacer)
+
+        self._lookup_ratio_22 = QComboBox(self)
+        self._lookup_ratio_22.addItems(LookupTab.valid_second_vars)
+        self._lookup_ratio_22.currentIndexChanged.connect(self._update_lookup_ratio_2)
+        hlayout.addWidget(self._lookup_ratio_22)
+
+        self._lookup_ratio_2 = QLabel("", self)
+        self._update_lookup_ratio_2()
+        hlayout.addWidget(self._lookup_ratio_2)
+
+        self._lookup_ratio_2_value = QLineEdit(self)
+        self._lookup_ratio_2_value.setMaximumWidth(200)
+        hlayout.addWidget(self._lookup_ratio_2_value)
+
+
+        formLayout.addRow(_("Ratio 2"), hlayout)
+        
+
+        # self._add_independent_var = QPushButton(_("Define Variable"), parent=self)
+        # self._add_independent_var.clicked.connect(self._on_add_independent_var)
+        # formLayout.addRow(self._add_independent_var)
+        paramFormLayout = QFormLayout()
+
+        self._param_L = QLineEdit(self)
+        paramFormLayout.addRow(_("Length"), self._param_L)
+        self._param_VGS = QLineEdit(self)
+        paramFormLayout.addRow(_("VGS"), self._param_VGS)
+        self._param_VDS = QLineEdit(self)
+        paramFormLayout.addRow(_("VDS"), self._param_VDS)
+        self._param_VSB = QLineEdit(self)
+        paramFormLayout.addRow(_("VSB"), self._param_VSB)
+        self._param_VGB = QLineEdit(self)
+        paramFormLayout.addRow(_("VGB"), self._param_VGB)
+        self._param_GM_ID = QLineEdit(self)
+        paramFormLayout.addRow(_("GM_ID"), self._param_GM_ID)
+        self._param_ID_W = QLineEdit(self)
+        paramFormLayout.addRow(_("ID_W"), self._param_ID_W)
+        self._param_VDB = QLineEdit(self)
+        paramFormLayout.addRow(_("VDB"), self._param_VDB)
+
+        formLayout.addRow(_("where"), paramFormLayout)
+
+        self._statusText = QLabel('', self)
+        self._statusText.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        formLayout.addRow(self._statusText)
+
+        self._lookup = QPushButton(_("Lookup"), parent=self)
+        self._lookup.clicked.connect(self._on_lookup)
+        formLayout.addRow(self._lookup)
+
+
+        layout.addLayout(formLayout)
+
+
         self.setLayout(layout)
+
+    def _update_lookup_ratio_1(self):
+        is_ratio = self._lookup_ratio_12.currentIndex() >0
+        self._lookup_ratio_1.setText(self._lookup_ratio_11.currentText()+('_' if is_ratio else '')+self._lookup_ratio_12.currentText())
+    def _update_lookup_ratio_2(self):
+        is_ratio = self._lookup_ratio_22.currentIndex() >0
+        self._lookup_ratio_2.setText(self._lookup_ratio_21.currentText()+('_' if is_ratio else '')+self._lookup_ratio_22.currentText())
+
+    def _on_select_lookup_file(self):
+        file_name = QFileDialog.getOpenFileName(self, _("Select Lookup File"), "/", _("Lookup files (*.pkl);;All files (*)"))
+        print(file_name)
+        if (len(file_name[0]) > 0):
+            self._lookup_file.setText(file_name[0])
+            self.lookup = pygmid.Lookup(file_name[0])
+            self._title.setText(f"Model info: {self.lookup['INFO']}")
+
+    def _field_to_value(self, key:str, value: str, allowed_types=[tuple, int, float]):
+        if not len(value) > 0:
+            return None
+        built = eval(value, {'__builtins__':None})
+        if type(built) == tuple:
+            if len(built) == 2:
+                return np.arange(built[0], built[1])
+            elif len(built) == 3:
+                return  np.arange(built[0], built[1], built[2])
+            else:
+                raise TypeError("{value} is not a valid value for {key}: too short")
+        elif type(built) == int or type(built) == float:
+            return built
+        else:
+            raise TypeError("{value} is not a valid value for {key}: too short")
+
+    def _on_lookup(self):
+        with_defaults = {}
+        no_defaults = {}
+        L = self._field_to_value('L', self._param_L.text())
+        VGS = self._field_to_value('VGS', self._param_VGS.text())
+        VDS = self._field_to_value('VDS', self._param_VDS.text())
+        VSB = self._field_to_value('VDS', self._param_VSB.text())
+        VGB = self._field_to_value('VDS', self._param_VGB.text())
+        GM_ID = self._field_to_value('VDS', self._param_GM_ID.text())
+        ID_W = self._field_to_value('VDS', self._param_ID_W.text())
+        VDB = self._field_to_value('VDS', self._param_VDB.text())
+        if L is not None: with_defaults['L'] = L
+        if VGS is not None: with_defaults['VGS'] = VGS
+        if VDS is not None: with_defaults['VDS'] = VDS
+        if VSB is not None: with_defaults['VSB'] = VSB
+        if VGB is not None: no_defaults['VGB'] = VGB
+        if GM_ID is not None: no_defaults['GM_ID'] = GM_ID
+        if ID_W is not None: no_defaults['ID_W'] = ID_W
+        if VDB is not None: no_defaults['VDB'] = VDB
+        # {
+        #     'L'     :   params.get('L', min(self.lookup['L'])),
+        #     'VGS'   :   params.get('VGS', self.lookup['VGS']),
+        #     'VDS'   :   params.get('VDS', max(self.lookup['VDS'])/2),
+        #     'VSB'   :   params.get('VSB', 0.0),
+        #     'METHOD':   params.get('METHOD', 'pchip'),
+        #     'VGB'   :   params.get('VGB', None),
+        #     'GM_ID' :   params.get('GM_ID', None),
+        #     'ID_W'  :   params.get('ID_W', None),
+        #     'VDB'   :   params.get('VDB', None)
+        # }
+        
+        ratio1 = self._lookup_ratio_1.text()
+        ratio2 = self._lookup_ratio_2.text()
+        if len(ratio2) > 0:
+            ratio2_val = self._field_to_value(ratio2, self._lookup_ratio_2_value.text())
+            data = self.lookup.look_up(
+                ratio1, 
+                **{ratio2: ratio2_val},
+                **no_defaults,
+                L=with_defaults.get('L', min(self.lookup['L'])),
+                VGS=with_defaults.get('VGS', self.lookup['VGS']),
+                VDS=with_defaults.get('VDS', max(self.lookup['VDS'])/2),
+                VSB=with_defaults.get('VSB', 0.0),
+            )
+            self.set_value('lookup', self.lookup)
+            self.set_value('data', data)
+            self._statusText.setText("Loaded `lookup` and generated `data` into console. Try `plt.plot(lookup['<x var>'], data.T) ` for a nice plot!")
+        else:
+            data = self.lookup.look_up(
+                ratio1,
+                **no_defaults,
+                L=with_defaults.get('L', min(self.lookup['L'])),
+                VGS=with_defaults.get('VGS', self.lookup['VGS']),
+                VDS=with_defaults.get('VDS', max(self.lookup['VDS'])/2),
+                VSB=with_defaults.get('VSB', 0.0),
+            )
+            self.set_value('lookup', self.lookup)
+            self.set_value('data', data)
+            self._statusText.setText("Loaded `lookup` and generated `data` into console. Try `plt.plot(lookup['<x var>'], data.T) ` for a nice plot!")

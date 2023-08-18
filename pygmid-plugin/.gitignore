@@ -105,3 +105,6 @@ cookiecutter-pypackage-env/
 
 # OSX stuff
 .DS_Store
+
+# model files
+*.pkl

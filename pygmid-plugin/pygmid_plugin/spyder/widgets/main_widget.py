@@ -59,7 +59,7 @@ class PyGMIDPluginWidget(ShellConnectMainWidget):
             name=PyGMIDPluginActions.RunSweep,
             text="Run Sweep",
             tip="Run the sweep process",
-            icon=qtawesome.icon('fa.play'),
+            icon=qtawesome.icon('fa.play', color='green'),
             triggered=lambda : run_sweep(),
         )
 
@@ -88,7 +88,7 @@ class PyGMIDPluginWidget(ShellConnectMainWidget):
 
     # ShellConnectMainWidget API
     def create_new_widget(self, shellwidget):
-        #shellwidget.execute("name = 9; print(9)")
+        shellwidget.execute("import matplotlib as mpl;import matplotlib.pyplot as plt;import numpy as np;mpl.rcParams['axes.spines.right'] = False;mpl.rcParams['axes.spines.top'] = False;mpl.rcParams.update({'axes.grid' : True})")
         controller = ControllerTabs(parent=self, shellwidget=shellwidget)
         controller.set_shellwidget(shellwidget)
         return controller
