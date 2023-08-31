@@ -10,7 +10,7 @@ PyGMID Plugin Preferences Page.
 from spyder.api.preferences import PluginConfigPage
 from spyder.api.translations import get_translation
 
-_ = get_translation("pygmid_plugin.spyder")
+_ = get_translation("spyder_pygmid.spyder")
 
 
 class PyGMIDPluginConfigPage(PluginConfigPage):

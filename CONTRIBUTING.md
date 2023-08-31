@@ -75,8 +75,8 @@ Now you can make your changes locally.
    tests, including testing other Python versions:
 
 ```bash
-flake8 pygmid_plugin
-pytest pygmid_plugin
+flake8 spyder_pygmid
+pytest spyder_pygmid
 ```
 
 1. Commit your changes and push your branch to GitHub:
@@ -113,7 +113,7 @@ pytest tests/spyder/test_plugin.py
 
 A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in HISTORY.rst).
-Then edit `pygmid_plugin/__init__.py` and update the plugin version and run:
+Then edit `spyder_pygmid/__init__.py` and update the plugin version and run:
 
 ```bash
 git push

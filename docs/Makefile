@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = pygmid_plugin
+SPHINXPROJ    = spyder_pygmid
 SOURCEDIR     = .
 BUILDDIR      = _build
 

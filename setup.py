@@ -10,7 +10,7 @@ PyGMID Plugin setup.
 from setuptools import find_packages
 from setuptools import setup
 
-from pygmid_plugin import __version__
+from spyder_pygmid import __version__
 
 
 setup(
@@ -32,7 +32,7 @@ setup(
     packages=find_packages(),
     entry_points={
         "spyder.plugins": [
-            "pygmid_plugin = pygmid_plugin.spyder.plugin:PyGMIDPlugin"
+            "spyder_pygmid = spyder_pygmid.spyder.plugin:PyGMIDPlugin"
         ],
     },
     classifiers=[

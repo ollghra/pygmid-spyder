@@ -23,7 +23,7 @@ from spyder.api.widgets.main_widget import PluginMainWidget
 from .controller import ControllerTabs, run_sweep
 
 # Localization
-_ = get_translation("pygmid_plugin.spyder")
+_ = get_translation("spyder_pygmid.spyder")
 
 
 class PyGMIDPluginActions:

@@ -7,8 +7,8 @@
 commit_message: '[ci skip] New %language% translation from Crowdin'
 append_commit_message: false
 files:
-  - source: /pygmid_plugin/spyder/locale/pygmid_plugin.pot
-    translation: /pygmid_plugin/pygmid_plugin/locale/%two_letters_code%/LC_MESSAGES/%file_name%.po
+  - source: /spyder_pygmid/spyder/locale/spyder_pygmid.pot
+    translation: /spyder_pygmid/spyder_pygmid/locale/%two_letters_code%/LC_MESSAGES/%file_name%.po
     languages_mapping:
       two_letters_code:
         pt-BR: pt_BR

@@ -17,10 +17,10 @@ from spyder.api.shellconnect.mixins import ShellConnectMixin
 from spyder.api.translations import get_translation
 
 # Local imports
-from pygmid_plugin.spyder.widgets.confpage import PyGMIDPluginConfigPage
-from pygmid_plugin.spyder.widgets.main_widget import PyGMIDPluginWidget
+from spyder_pygmid.spyder.widgets.confpage import PyGMIDPluginConfigPage
+from spyder_pygmid.spyder.widgets.main_widget import PyGMIDPluginWidget
 
-_ = get_translation("pygmid_plugin.spyder")
+_ = get_translation("spyder_pygmid.spyder")
 
 
 class PyGMIDPlugin(SpyderDockablePlugin, ShellConnectMixin):
@@ -28,7 +28,7 @@ class PyGMIDPlugin(SpyderDockablePlugin, ShellConnectMixin):
     PyGMID Plugin plugin.
     """
 
-    NAME = "pygmid_plugin"
+    NAME = "spyder_pygmid"
     REQUIRES = [Plugins.IPythonConsole]
     OPTIONAL = []
     WIDGET_CLASS = PyGMIDPluginWidget

@@ -12,7 +12,7 @@ import os
 
 from spyder.api.translations import get_translation
 from spyder.api.widgets.mixins import SpyderWidgetMixin
-_ = get_translation("pygmid_plugin.spyder")
+_ = get_translation("spyder_pygmid.spyder")
 
 class ControllerTabs(QWidget, SpyderWidgetMixin):
     def __init__(self, parent, shellwidget):

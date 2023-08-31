@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=pygmid_plugin
+set SPHINXPROJ=spyder_pygmid
 
 if "%1" == "" goto help
 

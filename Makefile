@@ -46,12 +46,12 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 test: ## run tests quickly with the default Python
-	pytest tests --cov=pygmid_plugin
+	pytest tests --cov=spyder_pygmid
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/pygmid_plugin.rst
+	rm -f docs/spyder_pygmid.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ pygmid_plugin
+	sphinx-apidoc -o docs/ spyder_pygmid
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
