@@ -15,9 +15,9 @@ from pygmid_plugin import __version__
 
 setup(
     # See: https://setuptools.readthedocs.io/en/latest/setuptools.html
-    name="pygmid-plugin",
+    name="spyder_pygmid",
     version=__version__,
-    author="Tiarnach Ó Riada",
+    author="Tiarnach Ó Riada",
     author_email="tiarnach.oriada@tyndall.ie",
     description="Use PyGMID sweep and lookup within spyder",
     license="Apache Software License 2.0",
