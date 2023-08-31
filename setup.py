@@ -20,6 +20,8 @@ setup(
     author="Tiarnach Ó Riada",
     author_email="tiarnach.oriada@tyndall.ie",
     description="Use PyGMID sweep and lookup within spyder",
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     license="Apache Software License 2.0",
     url="https://github.com/ollghra/pygmid-plugin",
     python_requires='>= 3.7',
