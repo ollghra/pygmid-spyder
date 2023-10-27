@@ -26,8 +26,11 @@ class ControllerTabs(QWidget, SpyderWidgetMixin):
         self.config_file_path = str(Path(os.getcwd()) / "sweep.cfg")
 
         self._tabWidget = QTabWidget(parent=self)
+        self._tabWidget.addTab(LookupTab(parent=self, execute=self.shellwidget.execute, set_value=self.shellwidget.set_value, lookup_name='lookup1', data_name='data1'), _("Lookup 1"))
+        self._tabWidget.addTab(LookupTab(parent=self, execute=self.shellwidget.execute, set_value=self.shellwidget.set_value, lookup_name='lookup2', data_name='data2'), _("Lookup 2"))
+        self._tabWidget.addTab(LookupTab(parent=self, execute=self.shellwidget.execute, set_value=self.shellwidget.set_value, lookup_name='lookup3', data_name='data3'), _("Lookup 3"))
+        self._tabWidget.addTab(LookupTab(parent=self, execute=self.shellwidget.execute, set_value=self.shellwidget.set_value, lookup_name='lookup4', data_name='data4'), _("Lookup 4"))
         self._tabWidget.addTab(SweepTab(parent=self), _("Sweep"))
-        self._tabWidget.addTab(LookupTab(parent=self, execute=self.shellwidget.execute, set_value=self.shellwidget.set_value), _("Lookup"))
         layout = QVBoxLayout()
         layout.addWidget(self._tabWidget)
         self.setLayout(layout)
@@ -166,10 +169,12 @@ class LookupTab(QWidget):
     valid_second_vars = [None,'ID','L','W','VGS','VDS','VSB','VT','IGD','IGS','GM','GMB','GDS','CGG','CGS','CSG','CGD','CDG','CGB','CDD','CSS','STH','SFL']
 
 
-    def __init__(self, execute:Callable[[str], None], set_value: Callable[[str, str], None], parent=None):
+    def __init__(self, execute:Callable[[str], None], set_value: Callable[[str, str], None], parent=None, lookup_name='lookup', data_name='data'):
         super().__init__(parent=parent)
         self.execute = execute
         self.set_value = set_value
+        self.data_name = data_name
+        self.lookup_name = lookup_name
 
         self.lookup:pygmid.Lookup.Lookup = None
 
@@ -313,11 +318,13 @@ class LookupTab(QWidget):
             elif len(built) == 3:
                 return  np.arange(built[0], built[1], built[2])
             else:
-                raise TypeError("{value} is not a valid value for {key}: too short")
+                raise TypeError(f"Can't create range from value '{value}' for key '{key}'")
         elif type(built) == int or type(built) == float:
             return built
+        elif type(built) == list:
+            return np.array(built)
         else:
-            raise TypeError("{value} is not a valid value for {key}: too short")
+            raise TypeError(f"{value} is not a valid value for {key}")
 
     def _on_lookup(self):
         with_defaults = {}
@@ -363,9 +370,9 @@ class LookupTab(QWidget):
                 VDS=with_defaults.get('VDS', max(self.lookup['VDS'])/2),
                 VSB=with_defaults.get('VSB', 0.0),
             )
-            self.set_value('lookup', self.lookup)
-            self.set_value('data', data)
-            self._statusText.setText("Loaded `lookup` and generated `data` into console. Try `plt.plot(lookup['<x var>'], data.T) ` for a nice plot!")
+            self.set_value(self.lookup_name, self.lookup)
+            self.set_value(self.data_name, data)
+            self._statusText.setText(f"Loaded `{self.lookup_name}` and generated `{self.data_name}` into console. Try `plt.plot({self.lookup_name}['<x var>'], {self.data_name}.T) ` for a nice plot!")
         else:
             data = self.lookup.look_up(
                 ratio1,
@@ -375,6 +382,6 @@ class LookupTab(QWidget):
                 VDS=with_defaults.get('VDS', max(self.lookup['VDS'])/2),
                 VSB=with_defaults.get('VSB', 0.0),
             )
-            self.set_value('lookup', self.lookup)
-            self.set_value('data', data)
-            self._statusText.setText("Loaded `lookup` and generated `data` into console. Try `plt.plot(lookup['<x var>'], data.T) ` for a nice plot!")
+            self.set_value(self.lookup_name, self.lookup)
+            self.set_value(self.data_name, data)
+            self._statusText.setText(f"Loaded `{self.lookup_name}` and generated `{self.data_name}` into console. Try `plt.plot({self.lookup_name}['<x var>'], {self.data_name}.T) ` for a nice plot!")
